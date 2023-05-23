@@ -1,0 +1,116 @@
+import pygame
+import time
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the display
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+clock = pygame.time.Clock()
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+SILVER = (192, 192, 192)
+
+# Eye properties
+eye_radius = 50
+eye_x = width // 2
+eye_y = height // 2
+eye_color = WHITE
+
+# Spear properties
+spear_length = 80
+spear_thickness = 5
+spear_color = SILVER
+
+# Animation properties
+zoom_speed = 0.02
+fall_speed = 2.0
+blink_interval = 500  # milliseconds
+blink_duration = 200  # milliseconds
+black_duration = 4000  # milliseconds
+
+def draw_eyes():
+    pygame.draw.circle(screen, eye_color, (eye_x, eye_y), eye_radius)
+    pygame.draw.circle(screen, BLACK, (eye_x, eye_y), eye_radius // 2)
+
+def draw_spears():
+    spear_top = eye_y + eye_radius
+    for i in range(8):
+        angle = 2 * i * 3.14159 / 8
+        x = eye_x + int(spear_top * 0.7 * -1 * sin(angle))
+        y = eye_y + int(spear_top * 0.7 * -1 * cos(angle))
+        pygame.draw.line(screen, spear_color, (x, y), (x, y + spear_length), spear_thickness)
+
+def zoom_animation():
+    global eye_radius, spear_length
+
+    while eye_radius < 2 * width:
+        screen.fill(BLACK)
+
+        eye_radius += zoom_speed
+        spear_length += fall_speed
+
+        draw_eyes()
+        draw_spears()
+
+        pygame.display.flip()
+        clock.tick(60)
+
+def black_eyes_animation():
+    global eye_color
+
+    start_time = pygame.time.get_ticks()
+
+    while pygame.time.get_ticks() - start_time < black_duration:
+        screen.fill(BLACK)
+
+        draw_eyes()
+
+        pygame.display.flip()
+        clock.tick(60)
+
+def blink_animation():
+    global eye_color
+
+    start_time = pygame.time.get_ticks()
+
+    while pygame.time.get_ticks() - start_time < blink_duration:
+        screen.fill(BLACK)
+
+        pygame.display.flip()
+        clock.tick(60)
+
+        screen.fill(BLACK)
+        draw_eyes()
+
+        pygame.display.flip()
+        clock.tick(60)
+
+def reset_animation():
+    global eye_radius, spear_length, eye_color
+
+    eye_radius = 50
+    spear_length = 80
+    eye_color = WHITE
+
+# Main animation loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    screen.fill(BLACK)
+
+    zoom_animation()
+    eye_color = BLACK
+
+    black_eyes_animation()
+    blink_animation()
+
+    reset_animation()
+
+pygame.quit()
